@@ -591,9 +591,34 @@ void YoloObjectDetector::yolo()
 
 }
 
+#if CV_VERSION_MAJOR > 3 || \
+    (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR > 4) || \
+    (CV_VERSION_MAJOR == 3 && CV_VERSION_MINOR == 4 && CV_VERSION_REVISION >= 4)
+// Works after CV_VERSION_STRING >= 3.4.4
+// https://github.com/opencv/opencv/commit/ad146e5a6b931ac5d179d4fedc58cef99a3c9e7e
+
+IplImage* newIplImage(cv::Mat& m) {
+    CV_Assert( m.dims <= 2);
+    IplImage* self = new IplImage();
+    *self = cvIplImage(m);
+    return self;
+}
+
+#else
+// Works before CV_VERSION_STRING < 3.4.4
+// https://github.com/opencv/opencv/commit/ad146e5a6b931ac5d179d4fedc58cef99a3c9e7e
+
+IplImage* newIplImage(cv::Mat& m)
+{
+    return new IplImage(m);
+}
+
+#endif // CV_MAJOR_VERSION
+
+
 IplImageWithHeader_ YoloObjectDetector::getIplImageWithHeader()
 {
-  IplImage* ROS_img = new IplImage(camImageCopy_);
+  IplImage* ROS_img = newIplImage(camImageCopy_);
   IplImageWithHeader_ header = {.image = ROS_img, .header = imageHeader_};
   return header;
 }

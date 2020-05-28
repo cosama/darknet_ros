@@ -12,6 +12,9 @@ find_path(DARKNET_PATH
 message(STATUS "Darknet path dir = ${DARKNET_PATH}")
 add_definitions(-DDARKNET_FILE_PATH="${DARKNET_PATH}")
 
+# Find blas
+find_package(BLAS REQUIRED)
+
 # Find CUDA
 find_package(CUDA QUIET)
 if (CUDA_FOUND)
